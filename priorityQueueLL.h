@@ -1,34 +1,50 @@
+#pragma once
+#include <stdexcept>
 
 template <class T>
-class priorityQueueLL
-{
+class priorityQueueLL {
 private:
-	class node
-	{
-	public:
-		//put what you need here..
-	}
+    class node {
+    public:
+        T data;
+        node* next;
+        node(T d, node* n = nullptr) : data(d), next(n) {}
+    };
 
-	//add what you wish here
+    node* head; // always sorted ascending
 
 public:
+    priorityQueueLL() : head(nullptr) {}
 
-	priorityQueueLL()
-	{}
+    ~priorityQueueLL() {
+        while (!empty()) extractMin();
+    }
 
-	~priorityQueueLL()
-	{}
+    // O(1)
+    bool empty() {
+        return head == nullptr;
+    }
 
-	//return true if empty, false if not
-	bool empty()
-	{}
+    // O(n) to insert in sorted order
+    void insert(T x) {
+        if (!head || x < head->data) {
+            head = new node(x, head);
+            return;
+        }
+        node* cur = head;
+        while (cur->next && cur->next->data < x) {
+            cur = cur->next;
+        }
+        cur->next = new node(x, cur->next);
+    }
 
-	//add item
-	void insert(T x)
-	{}
-
-	//remove and return smallest item
-	T extractMin()
-	{}
-
+    // O(1)
+    T extractMin() {
+        if (empty()) throw std::runtime_error("PriorityQueue underflow");
+        node* old = head;
+        T val = old->data;
+        head = head->next;
+        delete old;
+        return val;
+    }
 };

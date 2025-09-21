@@ -1,29 +1,72 @@
+#pragma once
+#include <stdexcept>
 
-class queueLL
-{
+template <class T>
+class queueLL {
 private:
-	//put what you need here...
+    class node {
+    public:
+        T data;
+        node* next;
+        node(T d, node* n = nullptr) : data(d), next(n) {}
+    };
+
+    node* front;
+    node* rear;
 
 public:
-	queueLL()
-	{}
+    queueLL() : front(nullptr), rear(nullptr) {}
 
-	~queueLL()
-	{}
+    ~queueLL() {
+        while (!empty()) dequeue();
+    }
 
-	//add item to back of queue
-	void enqueue(int x)
-	{}
+    // O(1)
+    bool empty() {
+        return front == nullptr;
+    }
 
-	//remove and return first item from queue
-	int dequeue()
-	{}
+    // O(1)
+    void enqueue(T x) {
+        node* n = new node(x);
+        if (rear == nullptr) {
+            front = rear = n;
+        } else {
+            rear->next = n;
+            rear = n;
+        }
+    }
 
-	//return true if empty, false otherwise.
-	bool empty()
-	{}
+    // O(1)
+    T dequeue() {
+        if (empty()) throw std::runtime_error("Queue underflow");
+        node* old = front;
+        T val = old->data;
+        front = front->next;
+        if (front == nullptr) rear = nullptr;
+        delete old;
+        return val;
+    }
 
-	//For the final part of the test program, template this class
-	//and add a decimate method.
-
-}
+    // O(n) - removes every 10th element
+    void decimate() {
+        if (empty()) return;
+        node* cur = front;
+        node* prev = nullptr;
+        int count = 1;
+        while (cur != nullptr) {
+            if (count % 10 == 0) {
+                node* doomed = cur;
+                if (prev) prev->next = cur->next;
+                else front = cur->next;
+                if (cur == rear) rear = prev;
+                cur = cur->next;
+                delete doomed;
+            } else {
+                prev = cur;
+                cur = cur->next;
+            }
+            count++;
+        }
+    }
+};
